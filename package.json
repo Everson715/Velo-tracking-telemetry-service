@@ -1,0 +1,39 @@
+{
+  "name": "velo-tracking-telemetry-service",
+  "version": "1.0.0",
+  "description": "Geospatial tracking and telemetry microservice for Velo ride-hailing platform",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "migrate": "tsx src/infrastructure/database/migrate.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "@fastify/jwt": "^9.0.4",
+    "@fastify/websocket": "^11.0.2",
+    "fastify": "^5.2.1",
+    "ioredis": "^5.4.2",
+    "pg": "^8.13.1",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.11.11",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.5.13",
+    "jsonwebtoken": "^9.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

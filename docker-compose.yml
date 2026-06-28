@@ -1,0 +1,64 @@
+services:
+  tracking-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: tracking
+      POSTGRES_PASSWORD: tracking_secret
+      POSTGRES_DB: tracking_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - tracking_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracking -d tracking_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - velo-internal
+
+  tracking-redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - velo-internal
+
+  tracking-telemetry-service:
+    build: .
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      NODE_ENV: production
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://tracking:tracking_secret@tracking-db:5432/tracking_db
+      REDIS_URL: redis://tracking-redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      JWT_ISSUER: velo-identity
+      JWT_AUDIENCE: velo-platform
+      MAX_GPS_JUMP_METERS: 500
+    depends_on:
+      tracking-db:
+        condition: service_healthy
+      tracking-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - velo-internal
+
+volumes:
+  tracking_pg_data:
+
+networks:
+  velo-internal:
+    driver: bridge
